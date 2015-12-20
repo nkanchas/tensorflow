@@ -24,16 +24,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import BaseHTTPServer
+from six.moves import BaseHTTPServer
 import csv
 import gzip
 import imghdr
 import json
 import mimetypes
 import os
-import StringIO
-import urlparse
-
+from io import StringIO
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import  parse_qs
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 from google.protobuf import text_format
@@ -140,7 +140,7 @@ class TensorboardHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       content_type: The mime type of the content.
       code: The numeric HTTP status code to use.
     """
-    out = StringIO.StringIO()
+    out = StringIO()
     f = gzip.GzipFile(fileobj=out, mode='w')
     f.write(content)
     f.close()
@@ -195,7 +195,7 @@ class TensorboardHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     values = self._multiplexer.Scalars(run, tag)
 
     if query_params.get('format') == _OutputFormat.CSV:
-      string_io = StringIO.StringIO()
+      string_io = StringIO()
       writer = csv.writer(string_io)
       writer.writerow(['Wall time', 'Step', 'Value'])
       writer.writerows(values)
@@ -234,7 +234,7 @@ class TensorboardHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     run = query_params.get('run')
     compressed_histograms = self._multiplexer.CompressedHistograms(run, tag)
     if query_params.get('format') == _OutputFormat.CSV:
-      string_io = StringIO.StringIO()
+      string_io = StringIO()
       writer = csv.writer(string_io)
 
       # Build the headers; we have two columns for timing and two columns for
@@ -366,7 +366,7 @@ class TensorboardHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def do_GET(self):  # pylint: disable=invalid-name
     """Handler for all get requests."""
-    parsed_url = urlparse.urlparse(self.path)
+    parsed_url = urlparse(self.path)
 
     # Remove a trailing slash, if present.
     clean_path = parsed_url.path
@@ -386,7 +386,7 @@ class TensorboardHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     }
 
     if clean_path in handlers:
-      query_params = urlparse.parse_qs(parsed_url.query)
+      query_params = parse_qs(parsed_url.query)
       # parse_qs returns a list of values for each key; we're only interested in
       # the first.
       for key in query_params:

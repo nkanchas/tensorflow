@@ -22,11 +22,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import BaseHTTPServer
+from six.moves.BaseHTTPServer import HTTPServer
+from six.moves.socketserver import ThreadingMixIn
 import functools
 import os
 import socket
-import SocketServer
 
 import tensorflow.python.platform
 
@@ -107,8 +107,7 @@ def ParseEventFilesFlag(flag_value):
   return files
 
 
-class ThreadedHTTPServer(SocketServer.ThreadingMixIn,
-                         BaseHTTPServer.HTTPServer):
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
   """A threaded HTTP server."""
   daemon = True
 
